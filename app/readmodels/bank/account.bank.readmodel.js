@@ -10,6 +10,7 @@ const initialState = {
 const identity = {
 	[events.domain.bank.account.created]: ({ aggregate }) => aggregate.id,
 	[events.domain.bank.account.deposited]: ({ aggregate }) => aggregate.id,
+	[events.domain.bank.account.withdrawn]: ({ aggregate }) => aggregate.id,
 };
 
 const reactions = {
@@ -20,6 +21,12 @@ const reactions = {
 		},
 	],
 	[events.domain.bank.account.deposited]: [
+		async ({ payload }, vm) => {
+			const { balance } = payload;
+			vm.set('balance', balance);
+		},
+	],
+	[events.domain.bank.account.withdrawn]: [
 		async ({ payload }, vm) => {
 			const { balance } = payload;
 			vm.set('balance', balance);
