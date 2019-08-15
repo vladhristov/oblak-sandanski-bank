@@ -31,8 +31,8 @@ const commands = {
 			},
 			required: ['pin', 'holder'],
 		}),
-		async (cmd, agg, app) => {
-			const { payload, metadata } = cmd;
+		async (cmd, agg) => {
+			const { payload } = cmd;
 			const { holder, pin } = payload;
 			agg.apply.created({ holder, pin });
 		},
