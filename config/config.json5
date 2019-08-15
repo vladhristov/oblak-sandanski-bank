@@ -110,7 +110,7 @@
 	 * @type {Object}
 	 */
 	sagas: {
-		validation: {
+		bank: {
 			type: 'mongodb',
 			dbName: '{{appName}}-sagas',
 			collectionName: '{{shortName}}'

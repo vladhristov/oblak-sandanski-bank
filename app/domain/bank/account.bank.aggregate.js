@@ -7,6 +7,12 @@ const checkPin = only.ifState(({ payload }, agg) => {
 		throw new Error('Wrong Pin.');
 });
 
+const checkFunds = only.ifState(({ payload }, agg) => {
+	const currentBalance = agg.get('balance');
+	if (currentBalance < payload.amount)
+		throw new Error('Insufficent funds.');
+});
+
 const initialState = {
 	balance: 0, // current balance in stotinki
 	pin: '', // pin code of the account
@@ -46,6 +52,27 @@ const commands = {
 			const currentBalance = agg.get('balance');
 			const balance = currentBalance + amount;
 			agg.apply.deposited({ amount, balance });
+		},
+	],
+	internalDeposit: [
+		only.ifExists(),
+		async ({ payload }, agg) => {
+			const { amount, reference = '' } = payload;
+			const currentBalance = agg.get('balance');
+			const balance = currentBalance + amount;
+			agg.apply.deposited({ amount, balance, reference });
+		},
+	],
+	transfer: [
+		only.ifExists(),
+		only.ifValidatedBy('/accountTransfer'),
+		checkPin,
+		checkFunds,
+		async ({ payload }, agg) => {
+			const { amount, transferTo } = payload;
+			const currentBalance = agg.get('balance');
+			const balance = currentBalance - amount;
+			agg.apply.withdrawn({ amount, balance, reference: `transfer to ${transferTo}.` }, { transferTo });
 		},
 	],
 	withdraw: [
