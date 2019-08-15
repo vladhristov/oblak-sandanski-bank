@@ -10,6 +10,7 @@ const initialState = {
 
 const commands = {
 	create: [
+		only.ifNotExists(),
 		only.ifValidatedBy({
 			$async: true,
 			type: 'object',
@@ -32,7 +33,18 @@ const commands = {
 		},
 	],
 	deposit: [
-		() => {},
+		only.ifExists(),
+		only.ifValidatedBy('/accountOperation'),
+		only.ifState(({ payload }, agg) => {
+			if (payload.pin !== agg.get('pin'))
+				throw new Error('Wrong Pin.');
+		}),
+		async ({ payload }, agg) => {
+			const { amount } = payload;
+			const currentBalance = agg.get('balance');
+			const balance = currentBalance + amount;
+			agg.apply.deposited({ amount, balance });
+		},
 	],
 	withdraw: [
 		() => {},
@@ -49,7 +61,10 @@ const events = {
 		},
 	],
 	deposited: [
-		() => {},
+		({ payload }, agg) => {
+			const { balance } = payload;
+			agg.set('balance', balance);
+		},
 	],
 	withdrawn: [
 		() => {},
