@@ -41,7 +41,7 @@
 	 * @type {Object}
 	*/
 	mongodb: {
-		url: 'mongodb://127.0.0.1:27017/bank_shared?authSource=admin',
+		url: 'mongodb://127.0.0.1:27017/sandanski-bank-eventstore?authSource=admin',
 		host: '127.0.0.1',
 		port: 27017,
 	},
@@ -97,10 +97,10 @@
 	 * @type {Object}
 	 */
 	denormalizers: {
-		system: {
+		bank: {
 			type: 'main',
 			db: 'mongodb',
-			dbName: '{{appName}}-system-readmodels',
+			dbName: '{{appName}}-readmodels',
 			timeout: 10000,
 		},
 	},
