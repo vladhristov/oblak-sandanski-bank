@@ -10,6 +10,21 @@ const initialState = {
 
 const commands = {
 	create: [
+		only.ifValidatedBy({
+			$async: true,
+			type: 'object',
+			properties: {
+				pin: {
+					type: 'string',
+					pattern: '^\\d{4}$',
+				},
+				holder: {
+					type: 'string',
+					minLength: 1,
+				},
+			},
+			required: ['pin', 'holder'],
+		}),
 		async (cmd, agg, app) => {
 			const { payload, metadata } = cmd;
 			const { holder, pin } = payload;
