@@ -1,7 +1,7 @@
 // -*- mode: javascript; tab-width: 2; indent-tabs-mode: nil -*-
 {
 	rest: {
-		migration: {
+		bank: {
 			port: 3100,
 		},
 	},
