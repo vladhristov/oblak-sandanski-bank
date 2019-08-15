@@ -2,6 +2,11 @@
 
 const { domain: { command: { only } } } = require('oblak/lib/tools');
 
+const checkPin = only.ifState(({ payload }, agg) => {
+	if (payload.pin !== agg.get('pin'))
+		throw new Error('Wrong Pin.');
+});
+
 const initialState = {
 	balance: 0, // current balance in stotinki
 	pin: '', // pin code of the account
@@ -35,10 +40,7 @@ const commands = {
 	deposit: [
 		only.ifExists(),
 		only.ifValidatedBy('/accountOperation'),
-		only.ifState(({ payload }, agg) => {
-			if (payload.pin !== agg.get('pin'))
-				throw new Error('Wrong Pin.');
-		}),
+		checkPin,
 		async ({ payload }, agg) => {
 			const { amount } = payload;
 			const currentBalance = agg.get('balance');
@@ -47,8 +49,26 @@ const commands = {
 		},
 	],
 	withdraw: [
-		() => {},
+		only.ifExists(),
+		only.ifValidatedBy('/accountOperation'),
+		checkPin,
+		only.ifState(({ payload }, agg) => {
+			const currentBalance = agg.get('balance');
+			if (currentBalance < payload.amount)
+				throw new Error('Insufficent funds.');
+		}),
+		async ({ payload }, agg) => {
+			const { amount } = payload;
+			const currentBalance = agg.get('balance');
+			const balance = currentBalance - amount;
+			agg.apply.withdrawn({ amount, balance });
+		},
 	],
+};
+
+const operationEventHandler = ({ payload }, agg) => {
+	const { balance } = payload;
+	agg.set('balance', balance);
 };
 
 const events = {
@@ -61,13 +81,10 @@ const events = {
 		},
 	],
 	deposited: [
-		({ payload }, agg) => {
-			const { balance } = payload;
-			agg.set('balance', balance);
-		},
+		operationEventHandler,
 	],
 	withdrawn: [
-		() => {},
+		operationEventHandler,
 	],
 };
 
