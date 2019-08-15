@@ -16,6 +16,9 @@ const routes = {
 	'/:id/deposit': {
 		post: command(domain => ({ command: domain.bank.account.deposit, event: 'readmodel.bank.account.*' })),
 	},
+	'/:id/withdraw': {
+		post: command(domain => ({ command: domain.bank.account.withdraw, event: 'readmodel.bank.account.*' })),
+	},
 };
 
 module.exports = {
